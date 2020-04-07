@@ -16,6 +16,16 @@ class MovesenseFlutter {
   static const MethodChannel _mc = const MethodChannel('otter.works/movesense_whiteboard');
   // TODO: consider separate MethodChannel for get,put,post,delete
 
+  static Future<String> get info async {
+    final WhiteboardResponse response = await _mc.invokeMethod('get', {'path':'/Info'});
+    return response.content;
+  }
+
+  static Future<String> get appInfo async {
+    final WhiteboardResponse response = await _mc.invokeMethod('get', {'path':'/Info/App'});
+    return response.content;
+  }
+
   static Future<int> get getTime async {
     final WhiteboardResponse response = await _mc.invokeMethod('get', {'path':'/Time'});
     print(response.content); // TODO: decode content to get utime
