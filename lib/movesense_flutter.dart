@@ -2,23 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
-class Operation {
-  static const GET = "get";
-  static const PUT = "put";
-  static const POST = "post";
-  static const DELETE = "delete";
-}
-
-class StatusCode {
-  static const SUCCESS = 200;
-  static const CREATED = 201;
-  static const NO_CONTENT = 204;
-}
-
 class WhiteboardResponse { // every response has a code and a payload
-  StatusCode status;
+  int status;
   String responseString;
-  Operation operation;
+  String operation;
   String uri;
   String content; // JSON?
   int queryTimeMilliseconds;
@@ -38,7 +25,7 @@ class MovesenseFlutter {
 
   static Future<Null> setTime(int utime) async {
     final WhiteboardResponse response = await _mc.invokeMethod('put', {'path':'/Time/$utime'});
-    if ( response.status != StatusCode.SUCCESS ) {
+    if ( response.status != 200 ) {
       print("setting time unsuccessful: `$response`");
     }
   }
