@@ -115,24 +115,13 @@ class _Connected extends State<Connected> {
         appBar: AppBar(
           title: Text("connected to ${widget.device.name}"),
         ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Center(
-              child: IconButton(
-                icon: Icon(Icons.info_outline),
-                onPressed: getDeviceInfo,
-              ),
-            ),
-            Center(
-              child: Column(
-                children: <Widget>[
-                  Text("Whiteboard Response:"),
-                  Text(prettyJson(json.decode(_info), indent: 2)),
-                ],
-              )
-            )
-          ],
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(prettyJson(json.decode(_info), indent: 2)),
+        ),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.info_outline),
+          onPressed: getDeviceInfo,
         ),
       );
   }
