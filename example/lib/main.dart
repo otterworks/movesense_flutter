@@ -68,7 +68,7 @@ class _FindState extends State<Find> {
     int serial = int.parse(device.name.split(" ")[1]);
     String mac = device.id.toString();
     setState(() => _connectingTo = mac);
-    await MovesenseFlutter.mdsConnect(serial, mac);
+    await Movesense.mdsConnect(serial, mac);
     setState(() => _connectingTo = null);
     Navigator.push(context,
       MaterialPageRoute(
@@ -109,7 +109,7 @@ class Connect extends StatelessWidget {
       leading: IconButton(
         icon: Icon(Icons.first_page),
         onPressed: () async {
-          await MovesenseFlutter.mdsDisconnect();
+          await Movesense.mdsDisconnect();
           Navigator.pop(context);
         },
       ),
@@ -117,7 +117,7 @@ class Connect extends StatelessWidget {
     body: Padding(
       padding: const EdgeInsets.all(8.0),
       child: FutureBuilder(
-        future: MovesenseFlutter.info,
+        future: Movesense.info,
         builder: (BuildContext c, AsyncSnapshot<String> s) {
           switch (s.connectionState) {
             case ConnectionState.done:

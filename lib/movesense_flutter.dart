@@ -36,7 +36,7 @@ class WhiteboardResponse { // every response has a code and a payload
 
 }
 
-class MovesenseFlutter {
+class Movesense {
   static const MethodChannel _mc = const MethodChannel('otter.works/movesense_whiteboard');
   // TODO: consider separate MethodChannel for get,put,post,delete
   // TODO: investicate JSONMessageCodec class to potentially simplify encoding/decoding
