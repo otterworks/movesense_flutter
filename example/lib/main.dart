@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:pretty_json/pretty_json.dart';
 
 import 'package:movesense_flutter/movesense_flutter.dart';
 
@@ -93,7 +95,7 @@ class Connected extends StatefulWidget {
 }
 
 class _Connected extends State<Connected> {
-  String _info = 'Unknown';
+  String _info = '{"state":"Unknown"}';
 
   @override
   void initState() {
@@ -122,7 +124,12 @@ class _Connected extends State<Connected> {
               ),
             ),
             Center(
-              child: Text("Whiteboard Response:\n$_info\n")
+              child: Column(
+                children: <Widget>[
+                  Text("Whiteboard Response:"),
+                  Text(prettyJson(json.decode(_info), indent: 2)),
+                ],
+              )
             )
           ],
         ),
