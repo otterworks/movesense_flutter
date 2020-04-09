@@ -87,7 +87,7 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, MethodCallHandler 
           @Override
           public void onDisconnect(String macAddress) {
             Log.d("MovesenseFlutterPlugin", "mds.connect onDisconnect: " + macAddress);
-            result.success(200);
+            // do not write the result, it has already been sent
           }
         }
       );
@@ -106,6 +106,14 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, MethodCallHandler 
           }
         } // MdsResponseListener
       ); // mds.get
+    } else if (call.method.equals("disconnect")) {
+      Log.d("MovesenseFlutterPlugin",String.format("disconnecting from Movesense at MAC address %s", mac));
+      if (mac != null && !mac.isEmpty()) {
+        mds.disconnect(mac);
+        result.success(200);
+      } else {
+        result.error("MAC address is null or empty", null, null);
+      }
     } else if (call.method.equals("get")) {
       mds.get(String.format("suunto://%d%s",serial,path), // TODO: better than String.format
         null,

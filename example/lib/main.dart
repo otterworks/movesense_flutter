@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -134,5 +135,11 @@ class _Connected extends State<Connected> {
           ],
         ),
       );
+  }
+
+  @override
+  Future<void> dispose() async {
+    super.dispose(); // call *BEFORE* MovesenseFlutter.mdsDisconnect
+    await MovesenseFlutter.mdsDisconnect();
   }
 }
