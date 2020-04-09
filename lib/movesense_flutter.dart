@@ -39,6 +39,14 @@ class WhiteboardResponse { // every response has a code and a payload
 class MovesenseFlutter {
   static const MethodChannel _mc = const MethodChannel('otter.works/movesense_whiteboard');
   // TODO: consider separate MethodChannel for get,put,post,delete
+  // TODO: investicate JSONMessageCodec class to potentially simplify encoding/decoding
+
+  static Future<Null> pluginSerial(int serial) async {
+    final int response = await _mc.invokeMethod('plugin', {'serial':serial});
+    if( response != 200 ) {
+      print("native plugin did not accept movesense serial number: $serial");
+    }
+  }
 
   static Future<String> get info async {
     final String response = await _mc.invokeMethod('get', {'path':'/Info'});
