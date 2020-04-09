@@ -70,7 +70,9 @@ class _FindState extends State<Find> {
                 title: Text(r.device.name),
                 subtitle: Text(r.device.id.toString()),
                 onTap: () async {
-                  await r.device.connect(timeout: Duration(seconds: 4));
+                  int serial = int.parse(r.device.name.split(" ")[1]);
+                  String mac = r.device.id.toString();
+                  await MovesenseFlutter.mdsConnect(serial, mac); // TODO: display spinning something...
                   Navigator.push(context,
                     MaterialPageRoute(builder: (context) => Connected(r.device)),
                   );
@@ -91,13 +93,10 @@ class Connected extends StatefulWidget {
 }
 
 class _Connected extends State<Connected> {
-  int serial = 0;
   String _info = 'Unknown';
 
   @override
   void initState() {
-    serial = int.parse(widget.device.name.split(" ")[1]);
-    MovesenseFlutter.pluginSerial(serial);
     super.initState();
   }
 

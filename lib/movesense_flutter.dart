@@ -41,8 +41,8 @@ class MovesenseFlutter {
   // TODO: consider separate MethodChannel for get,put,post,delete
   // TODO: investicate JSONMessageCodec class to potentially simplify encoding/decoding
 
-  static Future<Null> pluginSerial(int serial) async {
-    final int response = await _mc.invokeMethod('plugin', {'serial':serial});
+  static Future<Null> mdsConnect(int serial, String mac) async {
+    final int response = await _mc.invokeMethod('connect', {'serial':serial, 'mac':mac});
     if( response != 200 ) {
       print("native plugin did not accept movesense serial number: $serial");
     }
@@ -50,12 +50,8 @@ class MovesenseFlutter {
 
   static Future<String> get info async {
     final String response = await _mc.invokeMethod('get', {'path':'/Info'});
-    final WhiteboardResponse wr = WhiteboardResponse.fromJsonString(response);
-    if( wr.response == 200 ) {
-      return json.encode(wr.content); // re-encode for now...
-    } else {
-      return wr.responseString;
-    }
+    print(response); // apparently mdsLib already strips it down to content...
+    return response;
   }
 
   static Future<String> get appInfo async {

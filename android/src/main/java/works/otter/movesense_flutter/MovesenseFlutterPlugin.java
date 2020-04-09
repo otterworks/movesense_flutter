@@ -14,14 +14,19 @@ import android.content.Context;
 import android.util.Log;
 
 import com.movesense.mds.Mds;
+import com.movesense.mds.MdsConnectionListener;
 import com.movesense.mds.MdsException;
 import com.movesense.mds.MdsResponseListener;
+// without these below, mds.connect fails
+import io.reactivex.disposables.Disposable;
+import com.polidea.rxandroidble2.RxBleDevice; 
 
 public class MovesenseFlutterPlugin implements FlutterPlugin, MethodCallHandler {
   private Context context = null;
   private MethodChannel methodChannel;
   private static Mds mds;
   private static long serial;
+  private static String mac;
 
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -38,11 +43,6 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, MethodCallHandler 
     methodChannel = new MethodChannel(messenger, "otter.works/movesense_whiteboard");
     methodChannel.setMethodCallHandler(this);
     mds = Mds.builder().build(this.context);
-    getConnectedDevices();
-    // TODO: Get the serial number for the Movesense Device we are connected to.
-    //        - flutter could send this to the plugin via method call
-    //        - the dataLoggerSample code passes it to the next activity as an extra argument to the intent
-    //        - it may also be available under the URI suunto://MDS/ConnectedDevices
   }
 
   private void getConnectedDevices() {
@@ -63,9 +63,35 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, MethodCallHandler 
   @Override
   public void onMethodCall(@NonNull MethodCall call, @NonNull final Result result) { // TODO: revisit final modifier
     final String path = call.argument("path");
-    if (call.method.equals("plugin")) {
+    if (call.method.equals("connect")) {
       serial = call.argument("serial");
       Log.d("MovesenseFlutterPlugin",String.format("set Movesense serial # %d", serial));
+      mac = call.argument("mac");
+      Log.d("MovesenseFlutterPlugin",String.format("set Movesense MAC address %s", mac));
+      mds.connect(mac,
+        new MdsConnectionListener() {
+          @Override
+          public void onConnect(String s) {
+            Log.d("MovesenseFlutterPlugin", "mds.connect onConnect: " + s);
+          }
+          @Override
+          public void onConnectionComplete(String macAddress, String serialNumber) {
+            Log.d("MovesenseFlutterPlugin", "mds.connect onConnectionComplete: " + macAddress + " " + serialNumber);
+            result.success(200);
+          }
+          @Override
+          public void onError(MdsException e) {
+            Log.e("MovesenseFlutterPlugin", "mds.connect onError" + e);
+            result.error("MDS Exception", null, e);
+          }
+          @Override
+          public void onDisconnect(String macAddress) {
+            Log.d("MovesenseFlutterPlugin", "mds.connect onDisconnect: " + macAddress);
+            result.success(200);
+          }
+        }
+      );
+    } else if (call.method.equals("connected")) {
       mds.get("suunto://MDS/ConnectedDevices", null,
         new MdsResponseListener() {
           @Override
@@ -86,6 +112,8 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, MethodCallHandler 
         new MdsResponseListener() {
           @Override
           public void onSuccess(String data) {
+            Log.d("MovesenseFlutterPlugin", String.format("received whiteboard response of type %s:", data.getClass().getName()));
+            Log.d("MovesenseFlutterPlugin", data);
             result.success(data);
           }
           @Override
@@ -101,6 +129,7 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, MethodCallHandler 
         new MdsResponseListener() {
           @Override
           public void onSuccess(String data) {
+            Log.d("MovesenseFlutterPlugin", data);
             result.success(data);
           }
           @Override
