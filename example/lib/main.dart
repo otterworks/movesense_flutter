@@ -33,6 +33,8 @@ class Find extends StatefulWidget {
 
 class _FindState extends State<Find> {
 
+  String _connectingTo = null;
+
   @override
   void initState() {
     super.initState();
@@ -62,6 +64,20 @@ class _FindState extends State<Find> {
     bt.startScan(timeout: Duration(seconds: 3)).catchError((e) => print("error starting Bluetooth scan: $e"));
   }
 
+  void _connect(BluetoothDevice device) async {
+    int serial = int.parse(device.name.split(" ")[1]);
+    String mac = device.id.toString();
+    setState(() => _connectingTo = mac);
+    await MovesenseFlutter.mdsConnect(serial, mac);
+    setState(() => _connectingTo = null);
+    Navigator.push(context,
+      MaterialPageRoute(
+        builder: (context) => Connect(device)
+      ),
+    );
+
+  }
+
   Widget _deviceListView() {
     return StreamBuilder<List<ScanResult>>(
       initialData: [],
@@ -71,12 +87,8 @@ class _FindState extends State<Find> {
             (r) => Card(
               child: ListTile(
                 title: Text(r.device.name),
-                subtitle: Text(r.device.id.toString()),
-                onTap: () => Navigator.push(context,
-                  MaterialPageRoute(
-                    builder: (context) => Connect(r.device)
-                  ),
-                ),
+                subtitle: _connectingTo == r.device.id.toString() ? LinearProgressIndicator() : Text(r.device.id.toString()), // there's probably a cleaner way to do this...
+                onTap: () => _connect(r.device),
               ),
             ),
           ).toList(),
@@ -91,9 +103,6 @@ class Connect extends StatelessWidget {
   final BluetoothDevice device;
 
   Future<String> _getDeviceInfo() async {
-    int serial = int.parse(device.name.split(" ")[1]);
-    String mac = device.id.toString();
-    await MovesenseFlutter.mdsConnect(serial, mac);
     return MovesenseFlutter.info;
   }
 
