@@ -48,6 +48,13 @@ class MovesenseFlutter {
     }
   }
 
+  static Future<Null> mdsDisconnect() async {
+    final int response = await _mc.invokeMethod('disconnect');
+    if( response != 200 ) {
+      print("native plugin did not disconnect");
+    }
+  }
+
   static Future<String> get info async {
     final String response = await _mc.invokeMethod('get', {'path':'/Info'});
     print(response); // apparently mdsLib already strips it down to content...
