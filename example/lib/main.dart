@@ -62,15 +62,6 @@ class _FindState extends State<Find> {
     bt.startScan(timeout: Duration(seconds: 3)).catchError((e) => print("error starting Bluetooth scan: $e"));
   }
 
-  Future<Null> _connect(BluetoothDevice device) async {
-    int serial = int.parse(device.name.split(" ")[1]);
-    String mac = device.id.toString();
-    await MovesenseFlutter.mdsConnect(serial, mac); // TODO: display spinning something...
-    Navigator.push(context,
-      MaterialPageRoute(builder: (context) => Connected(device)),
-    );
-  }
-
   Widget _deviceListView() {
     return StreamBuilder<List<ScanResult>>(
       initialData: [],
@@ -81,7 +72,11 @@ class _FindState extends State<Find> {
               child: ListTile(
                 title: Text(r.device.name),
                 subtitle: Text(r.device.id.toString()),
-                onTap: () => _connect(r.device),
+                onTap: () => Navigator.push(context,
+                  MaterialPageRoute(
+                    builder: (context) => Connect(r.device)
+                  ),
+                ),
               ),
             ),
           ).toList(),
@@ -90,47 +85,60 @@ class _FindState extends State<Find> {
   }
 }
 
-class Connected extends StatefulWidget {
+class Connect extends StatelessWidget {
+  Connect(this.device, {Key key}) : super(key: key);
+
   final BluetoothDevice device;
-  const Connected(this.device);
-  @override
-  _Connected createState() => _Connected();
-}
 
-class _Connected extends State<Connected> {
-  String _info = '{"state":"Unknown"}';
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  Future<void> getDeviceInfo() async {
-    String whiteboardResponse = await MovesenseFlutter.info;
-    if(!mounted) return;
-    setState(() => _info = whiteboardResponse);
+  Future<String> _getDeviceInfo() async {
+    int serial = int.parse(device.name.split(" ")[1]);
+    String mac = device.id.toString();
+    await MovesenseFlutter.mdsConnect(serial, mac);
+    return MovesenseFlutter.info;
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text("${widget.device.name}"),
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(prettyJson(json.decode(_info), indent: 2)),
-        ),
-        floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.info_outline),
-          onPressed: getDeviceInfo,
-        ),
-      );
-  }
-
-  @override
-  Future<void> dispose() async {
-    super.dispose(); // call *BEFORE* MovesenseFlutter.mdsDisconnect
-    await MovesenseFlutter.mdsDisconnect();
-  }
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(
+      title: Text("${device.name}"),
+      leading: IconButton(
+        icon: Icon(Icons.first_page),
+        onPressed: () async {
+          await MovesenseFlutter.mdsDisconnect();
+          Navigator.pop(context);
+        },
+      ),
+    ),
+    body: Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: FutureBuilder(
+        future: _getDeviceInfo(),
+        builder: (BuildContext c, AsyncSnapshot<String> s) {
+          switch (s.connectionState) {
+            case ConnectionState.none:
+            case ConnectionState.active:
+            case ConnectionState.waiting:
+              return Center(child: new CircularProgressIndicator());
+            case ConnectionState.done: {
+              if (s.hasError) {
+                return Text(
+                  '${s.error}',
+                  style: TextStyle(color: Colors.red),
+                );
+              } else if (s.hasData) {
+                return Text(
+                  prettyJson(json.decode(s.data), indent: 2),
+                );
+              } else {
+                return Text(
+                  '...not sure how we got here...',
+                  style: TextStyle(color: Colors.red),
+                );
+              }
+            }
+          }
+        }
+      ),
+    ),
+  );
 }
