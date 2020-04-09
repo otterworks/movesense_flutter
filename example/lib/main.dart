@@ -54,12 +54,21 @@ class _FindState extends State<Find> {
 
   @override
   void dispose() {
-    bt.stopScan();
     super.dispose();
+    bt.stopScan();
   }
 
   Future<Null> _refresh() async {
     bt.startScan(timeout: Duration(seconds: 3)).catchError((e) => print("error starting Bluetooth scan: $e"));
+  }
+
+  Future<Null> _connect(BluetoothDevice device) async {
+    int serial = int.parse(device.name.split(" ")[1]);
+    String mac = device.id.toString();
+    await MovesenseFlutter.mdsConnect(serial, mac); // TODO: display spinning something...
+    Navigator.push(context,
+      MaterialPageRoute(builder: (context) => Connected(device)),
+    );
   }
 
   Widget _deviceListView() {
@@ -72,14 +81,7 @@ class _FindState extends State<Find> {
               child: ListTile(
                 title: Text(r.device.name),
                 subtitle: Text(r.device.id.toString()),
-                onTap: () async {
-                  int serial = int.parse(r.device.name.split(" ")[1]);
-                  String mac = r.device.id.toString();
-                  await MovesenseFlutter.mdsConnect(serial, mac); // TODO: display spinning something...
-                  Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => Connected(r.device)),
-                  );
-                },
+                onTap: () => _connect(r.device),
               ),
             ),
           ).toList(),
@@ -113,7 +115,7 @@ class _Connected extends State<Connected> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("connected to ${widget.device.name}"),
+          title: Text("${widget.device.name}"),
         ),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
