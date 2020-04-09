@@ -33,7 +33,7 @@ class Find extends StatefulWidget {
 
 class _FindState extends State<Find> {
 
-  String _connectingTo = null;
+  String _connectingTo;
 
   @override
   void initState() {
@@ -102,10 +102,6 @@ class Connect extends StatelessWidget {
 
   final BluetoothDevice device;
 
-  Future<String> _getDeviceInfo() async {
-    return MovesenseFlutter.info;
-  }
-
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
@@ -121,30 +117,19 @@ class Connect extends StatelessWidget {
     body: Padding(
       padding: const EdgeInsets.all(8.0),
       child: FutureBuilder(
-        future: _getDeviceInfo(),
+        future: MovesenseFlutter.info,
         builder: (BuildContext c, AsyncSnapshot<String> s) {
           switch (s.connectionState) {
+            case ConnectionState.done:
+              return Text(prettyJson(json.decode(s.data), indent: 2));
+              break;
             case ConnectionState.none:
             case ConnectionState.active:
             case ConnectionState.waiting:
               return Center(child: new CircularProgressIndicator());
-            case ConnectionState.done: {
-              if (s.hasError) {
-                return Text(
-                  '${s.error}',
-                  style: TextStyle(color: Colors.red),
-                );
-              } else if (s.hasData) {
-                return Text(
-                  prettyJson(json.decode(s.data), indent: 2),
-                );
-              } else {
-                return Text(
-                  '...not sure how we got here...',
-                  style: TextStyle(color: Colors.red),
-                );
-              }
-            }
+              break;
+            default:
+              return Center(child: Icon(Icons.warning));
           }
         }
       ),
