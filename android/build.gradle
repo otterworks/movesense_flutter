@@ -16,6 +16,9 @@ rootProject.allprojects {
     repositories {
         google()
         jcenter()
+        flatDir{
+            dirs project(':movesense_flutter').file('lib')
+        }
     }
 }
 
@@ -25,10 +28,16 @@ android {
     compileSdkVersion 28
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 18
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     lintOptions {
         disable 'InvalidPackage'
     }
+}
+
+dependencies {
+    //implementation fileTree(dir: 'libs', include: ['mdslib-1.39.0(1)-release.aar'])
+    //implementation (name: 'com.movesense.mds', ext:'aar')
+    implementation (name: 'mdslib-1.39.0(1)-release', ext:'aar')
 }
