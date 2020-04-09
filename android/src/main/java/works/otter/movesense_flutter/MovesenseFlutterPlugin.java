@@ -10,11 +10,15 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
 
+import android.content.Context;
+
 import com.movesense.mds.Mds;
 import com.movesense.mds.MdsException;
 import com.movesense.mds.MdsResponseListener;
 
 public class MovesenseFlutterPlugin implements FlutterPlugin, MethodCallHandler {
+  private Context context = null;
+  private MethodChannel methodChannel;
   private static Mds mds;
 
   @Override
@@ -36,7 +40,7 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, MethodCallHandler 
   }
 
   @Override
-  public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
+  public void onMethodCall(@NonNull MethodCall call, @NonNull final Result result) { // TODO: revisit final modifier
     final String path = call.argument("path");
     if (call.method.equals("get")) {
       mds.get(path, null,
@@ -45,12 +49,12 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, MethodCallHandler 
           public void onSuccess(String data) {
             result.success(data);
           }
-          @Override void onError(MdsException e) {
-            result.error("MDS Exception", e);
+          @Override
+          public void onError(MdsException e) {
+            result.error("MDS Exception", null, e);
           }
         } // MdsResponseListener
       ); // mds.get
-      result.success();
     } else if (call.method.equals("put")) {
       final String value = call.argument("value");
       // mds.put(path, json.encode(value),
@@ -62,7 +66,7 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, MethodCallHandler 
           }
           @Override
           public void onError(MdsException e) {
-            result.error("MDS Exception", e);
+            result.error("MDS Exception", null, e);
           }
         } // MdsResponseListener
       ); // mds.put
