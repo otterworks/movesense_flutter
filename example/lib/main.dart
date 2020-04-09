@@ -121,7 +121,8 @@ class Connect extends StatelessWidget {
         builder: (BuildContext c, AsyncSnapshot<String> s) {
           switch (s.connectionState) {
             case ConnectionState.done:
-              return Text(prettyJson(json.decode(s.data), indent: 2));
+              var jd = json.decode(s.data);
+              return Text(prettyJson(jd['Content'], indent: 2));
               break;
             case ConnectionState.none:
             case ConnectionState.active:
