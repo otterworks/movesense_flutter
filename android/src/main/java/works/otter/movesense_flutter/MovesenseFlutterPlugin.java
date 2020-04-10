@@ -91,7 +91,7 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, MethodCallHandler 
           }
         }
       );
-    } else if (call.method.equals("connected")) {
+    } else if (call.method.equals("connected")) { // TODO: juse use GET and leave it to the dart part of the plugin
       mds.get("suunto://MDS/ConnectedDevices", null,
         new MdsResponseListener() {
           @Override
@@ -115,7 +115,7 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, MethodCallHandler 
         result.error("MAC address is null or empty", null, null);
       }
     } else if (call.method.equals("get")) {
-      mds.get(String.format("suunto://%d%s",serial,path), // TODO: better than String.format
+      mds.get(String.format("suunto://%d%s",serial,path), // TODO: build the full path in the dart part of the plugin instead -- allows consistent use with MDS proxy
         null,
         new MdsResponseListener() {
           @Override
@@ -131,9 +131,10 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, MethodCallHandler 
         } // MdsResponseListener
       ); // mds.get
     } else if (call.method.equals("put")) {
-      final String value = call.argument("value");
-      // mds.put(path, json.encode(value),
-      mds.put(path, value,
+      String parameters = call.argument("parameters"); // TODO: rename parameters to contract for consistency with new Suunto documentation
+      final String fullPath = String.format("suunto://%d%s", serial, path);
+      Log.d("MovesenseFlutterPlugin", String.format("PUT %s : %s", fullPath, parameters));
+      mds.put(fullPath, parameters,
         new MdsResponseListener() {
           @Override
           public void onSuccess(String data) {
