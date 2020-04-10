@@ -8,8 +8,6 @@ import 'package:pretty_json/pretty_json.dart';
 
 import 'package:movesense_flutter/movesense_flutter.dart';
 
-final FlutterBlue bt = FlutterBlue.instance; // global so we can access from any page/route
-
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -33,6 +31,7 @@ class Find extends StatefulWidget {
 
 class _FindState extends State<Find> {
 
+  final FlutterBlue bt = FlutterBlue.instance;
   String _connectingTo;
 
   @override
@@ -65,10 +64,10 @@ class _FindState extends State<Find> {
   }
 
   void _connect(BluetoothDevice device) async {
-    int serial = int.parse(device.name.split(" ")[1]);
     String mac = device.id.toString();
     setState(() => _connectingTo = mac);
-    await Movesense.mdsConnect(serial, mac);
+    final int serial = await Movesense.mdsConnect(mac);
+    print("connected to Movesense with serial # $serial");
     setState(() => _connectingTo = null);
     Navigator.push(context,
       MaterialPageRoute(
@@ -109,7 +108,7 @@ class Connect extends StatelessWidget {
       leading: IconButton(
         icon: Icon(Icons.first_page),
         onPressed: () async {
-          await Movesense.mdsDisconnect();
+          await Movesense.mdsDisconnect(device.id.toString());
           Navigator.pop(context);
         },
       ),
