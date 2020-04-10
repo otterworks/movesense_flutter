@@ -101,10 +101,10 @@ class Movesense {
     return response;
   }
 
-  static Future<String> get newLogbookEntry async {
+  static Future<int> get newLogbookEntry async {
     final String response = await _mc.invokeMethod('post', {'path': 'suunto://$serial/Mem/Logbook/Entries'});
     print(response);
-    return response;
+    return json.decode(response)["Content"];
   }
 
   static Future<String> deleteAllLogbookEntries() async { // there's no example to selectively delete a single entry

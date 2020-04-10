@@ -47,111 +47,116 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, MethodCallHandler 
   @Override
   public void onMethodCall(@NonNull MethodCall call, @NonNull final Result result) { // TODO: revisit final modifier
     final String path = call.argument("path");
-    if (call.method.equals("connect")) { // TODO: use switch instead
-      final String mac = call.argument("mac");
-      mds.connect(mac,
-        new MdsConnectionListener() {
-          @Override
-          public void onConnect(String s) {
-            Log.d(TAG, "mds.connect onConnect: " + s);
-          }
-          @Override
-          public void onConnectionComplete(String macAddress, String serialNumber) {
-            Log.d(TAG, "mds.connect onConnectionComplete: MAC: " + macAddress + ", serial #: " + serialNumber);
-            Long serial = Long.parseLong(serialNumber);
-            Log.d(TAG, String.format("returning serial # %d as type Long", serial));
-            result.success(serial);
-          }
-          @Override
-          public void onError(MdsException e) {
-            Log.e(TAG, "mds.connect onError" + e);
-            result.error("MDS Exception", null, e);
-          }
-          @Override
-          public void onDisconnect(String macAddress) {
-            Log.d(TAG, "mds.connect onDisconnect: " + macAddress);
-            // do not write the result, it has already been sent
-          }
-        }
-      );
-    } else if (call.method.equals("disconnect")) {
-      final String mac = call.argument("mac");
-      mds.disconnect(mac);
-      result.success(200);
 // TODO: seems like get/put/post/delete below are boilerplate and I should be able to implement them with some sort of function factory, but let's stick with the simple boilerplate for now
-    } else if (call.method.equals("get")) {
-      mds.get(path, null,
-        new MdsResponseListener() {
-          @Override
-          public void onSuccess(String data) {
-            Log.d(TAG, String.format("GET received whiteboard response of type %s:", data.getClass().getName()));
-            Log.d(TAG, data);
-            result.success(data);
+    switch (call.method) {
+      case "connect": {
+        final String mac = call.argument("mac");
+        mds.connect(mac,
+          new MdsConnectionListener() {
+            @Override
+            public void onConnect(String s) {
+              Log.d(TAG, "mds.connect onConnect: " + s);
+            }
+            @Override
+            public void onConnectionComplete(String macAddress, String serialNumber) {
+              Log.d(TAG, "mds.connect onConnectionComplete: MAC: " + macAddress + ", serial #: " + serialNumber);
+              Long serial = Long.parseLong(serialNumber);
+              Log.d(TAG, String.format("returning serial # %d as type Long", serial));
+              result.success(serial);
+            }
+            @Override
+            public void onError(MdsException e) {
+              Log.e(TAG, "mds.connect onError" + e);
+              result.error("MDS Exception", null, e);
+            }
+            @Override
+            public void onDisconnect(String macAddress) {
+              Log.d(TAG, "mds.connect onDisconnect: " + macAddress);
+              // do not write the result, it has already been sent
+            }
           }
-          @Override
-          public void onError(MdsException e) {
-            Log.e(TAG, "GET returned error:" + e);
-            result.error("MDS Exception", null, e);
-          }
-        } // MdsResponseListener
-      ); // mds.get
-    } else if (call.method.equals("put")) {
-      String contract = call.argument("contract");
-      Log.d(TAG, String.format("PUT %s : %s", path, contract));
-      mds.put(path, contract,
-        new MdsResponseListener() {
-          @Override
-          public void onSuccess(String data) {
-            Log.d(TAG, String.format("PUT received whiteboard response of type %s:", data.getClass().getName()));
-            Log.d(TAG, data);
-            result.success(data);
-          }
-          @Override
-          public void onError(MdsException e) {
-            Log.e(TAG, "PUT returned error:" + e);
-            result.error("MDS Exception", null, e);
-          }
-        } // MdsResponseListener
-      ); // mds.put
-    } else if (call.method.equals("post")) {
-      mds.post(path, null,
-        new MdsResponseListener() {
-          @Override
-          public void onSuccess(String data) {
-//            if(!data.isEmpty()){
-            Log.d(TAG, String.format("POST received whiteboard response of type %s:", data.getClass().getName()));
-            Log.d(TAG, data);
-            result.success(data);
-//            }
-          }
-          @Override
-          public void onError(MdsException e) {
-            Log.e(TAG, "POST returned error:" + e);
-            result.error("MDS Exception", null, e);
-          }
-        } // MdsResponseListener
-      ); // mds.post
-      result.notImplemented();
-    } else if (call.method.equals("delete")) {
-      mds.delete(path, null,
-        new MdsResponseListener() {
-          @Override
-          public void onSuccess(String data) {
-            Log.d(TAG, String.format("DELETE received whiteboard response of type %s:", data.getClass().getName()));
-            Log.d(TAG, data);
-            result.success(data);
-          }
-          @Override
-          public void onError(MdsException e) {
-            Log.e(TAG, "DELETE returned error:" + e);
-            result.error("MDS Exception", null, e);
-          }
-        } // MdsResponseListener
-      ); // mds.delete
-    } else {
-      Log.wtf(TAG, String.format("Yo! %s is not a valid MDS Whiteboard action."));
-      result.notImplemented();
-    }
+        );
+        break;
+      } case "disconnect": {
+        final String mac = call.argument("mac");
+        mds.disconnect(mac);
+        result.success(200);
+        break;
+      } case "get": {
+        mds.get(path, null,
+          new MdsResponseListener() {
+            @Override
+            public void onSuccess(String data) {
+              Log.d(TAG, String.format("GET received whiteboard response of type %s:", data.getClass().getName()));
+              Log.d(TAG, data);
+              result.success(data);
+            }
+            @Override
+            public void onError(MdsException e) {
+              Log.e(TAG, "GET returned error:" + e);
+              result.error("MDS Exception", null, e);
+            }
+          } // MdsResponseListener
+        ); // mds.get
+        break;
+      } case "put": {
+        String contract = call.argument("contract");
+        Log.d(TAG, String.format("PUT %s : %s", path, contract));
+        mds.put(path, contract,
+          new MdsResponseListener() {
+            @Override
+            public void onSuccess(String data) {
+              Log.d(TAG, String.format("PUT received whiteboard response of type %s:", data.getClass().getName()));
+              Log.d(TAG, data);
+              result.success(data);
+            }
+            @Override
+            public void onError(MdsException e) {
+              Log.e(TAG, "PUT returned error:" + e);
+              result.error("MDS Exception", null, e);
+            }
+          } // MdsResponseListener
+        ); // mds.put
+        break;
+      } case "post": {
+        mds.post(path, null,
+          new MdsResponseListener() {
+            @Override
+            public void onSuccess(String data) {
+              Log.d(TAG, String.format("POST received whiteboard response of type %s:", data.getClass().getName()));
+              Log.d(TAG, data);
+              result.success(data);
+            }
+            @Override
+            public void onError(MdsException e) {
+              Log.e(TAG, "POST returned error:" + e);
+              result.error("MDS Exception", null, e);
+            }
+          } // MdsResponseListener
+        ); // mds.post
+        break;
+      } case "delete": {
+        mds.delete(path, null,
+          new MdsResponseListener() {
+            @Override
+            public void onSuccess(String data) {
+              Log.d(TAG, String.format("DELETE received whiteboard response of type %s:", data.getClass().getName()));
+              Log.d(TAG, data);
+              result.success(data);
+            }
+            @Override
+            public void onError(MdsException e) {
+              Log.e(TAG, "DELETE returned error:" + e);
+              result.error("MDS Exception", null, e);
+            }
+          } // MdsResponseListener
+        ); // mds.delete
+        break;
+      } default: {
+        Log.wtf(TAG, String.format("Yo! %s is not a valid MDS Whiteboard action."));
+        result.notImplemented();
+      }
+    } // switch
   }
 
   @Override
