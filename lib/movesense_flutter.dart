@@ -95,10 +95,15 @@ class Movesense {
     return response;
   }
 
-  static Future<String> get logbookEntries async {
+  static Future<List<LogbookEntry>> get logbookEntries async {
     final String response = await _mc.invokeMethod('get', {'path': 'suunto://$serial/Mem/Logbook/Entries'});
     print(response);
-    return response;
+    Map<String, dynamic> decoded = json.decode(response);
+    LogbookEntries entries = LogbookEntries.fromJson(decoded["Content"]);
+    assert(entries != null);
+    print("$entries.toJson()");
+    print("returning ${entries.elements} of type ${entries.elements.runtimeType}");
+    return entries.elements;
   }
 
   static Future<int> get newLogbookEntry async {
@@ -119,4 +124,50 @@ class Movesense {
     return response;
   }
 
+}
+
+
+class LogbookEntry {
+  int id;
+  int modificationTimestamp;
+  int size;
+
+  LogbookEntry({this.id, this.modificationTimestamp, this.size});
+
+  LogbookEntry.fromJson(Map<String, dynamic> json) {
+    id = json['Id'];
+    modificationTimestamp = json['ModificationTimestamp'];
+    size = json['Size'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['Id'] = this.id;
+    data['ModificationTimestamp'] = this.modificationTimestamp;
+    data['Size'] = this.size;
+    return data;
+  }
+}
+
+class LogbookEntries {
+  List<LogbookEntry> elements;
+
+  LogbookEntries({this.elements});
+
+  LogbookEntries.fromJson(Map<String, dynamic> json) {
+    if (json['elements'] != null) {
+      elements = new List<LogbookEntry>();
+      json['elements'].forEach((v) {
+        elements.add(new LogbookEntry.fromJson(v));
+      });
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    if (this.elements != null) {
+      data['elements'] = this.elements.map((v) => v.toJson()).toList();
+    }
+    return data;
+  }
 }

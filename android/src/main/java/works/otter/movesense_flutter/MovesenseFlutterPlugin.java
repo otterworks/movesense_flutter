@@ -130,6 +130,7 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, MethodCallHandler 
             @Override
             public void onError(MdsException e) {
               Log.e(TAG, "POST returned error:" + e);
+              // TODO: allow CONTINUE somehow...
               result.error("MDS Exception", null, e);
             }
           } // MdsResponseListener
