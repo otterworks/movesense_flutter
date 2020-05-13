@@ -74,7 +74,6 @@ class _FindState extends State<Find> {
         builder: (context) => Connect(device)
       ),
     );
-
   }
 
   Widget _deviceListView() {
