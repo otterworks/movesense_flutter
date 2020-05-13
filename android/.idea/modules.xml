@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/mdslib/mdslib.iml" filepath="$PROJECT_DIR$/mdslib/mdslib.iml" group="movesense_flutter/mdslib" />
+      <module fileurl="file://$PROJECT_DIR$/movesense_flutter.iml" filepath="$PROJECT_DIR$/movesense_flutter.iml" group="movesense_flutter" />
+    </modules>
+  </component>
+</project>

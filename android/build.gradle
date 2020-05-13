@@ -16,10 +16,7 @@ rootProject.allprojects {
     repositories {
         google()
         jcenter()
-        flatDir{
-            dirs project(':movesense_flutter').file('lib')
-//            dirs 'lib'
-        }
+        mavenLocal()
     }
 }
 
@@ -30,7 +27,6 @@ android {
 
     defaultConfig {
         minSdkVersion 19
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     lintOptions {
         disable 'InvalidPackage'
@@ -41,7 +37,5 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'com.polidea.rxandroidble2:rxandroidble:1.10.2'
-    implementation (name: 'mdslib-1.39.0(1)-release', ext:'aar')
-//    implementation files('lib/mdslib-1.39.0(1)-release.aar') // fails with "Non-directory inputs must have .jar extension"
-//    implementation fileTree(dir: 'lib', include: ['*.aar']) // fails with "Non-directory inputs must have .jar extension"
+    implementation 'com.suunto.mds:mdslib:1.39.0(1)-release'
 }
