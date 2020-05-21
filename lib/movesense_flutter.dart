@@ -4,18 +4,38 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 
 class Movesense {
-  static const MethodChannel _mc = const MethodChannel('otter.works/movesense_whiteboard');
+  static const MethodChannel _mc = const MethodChannel('otter.works/movesense/whiteboard');
+  static const EventChannel _ec = const EventChannel('otter.works/movesense/scan');
   // TODO: investigate JSONMessageCodec class to potentially simplify encoding/decoding
   static int serial;
 
-  static Future<int> mdsConnect(String mac) async {
-    int _serial = await _mc.invokeMethod('connect', {'mac':mac});
+  static Stream get scan {
+    return _ec.receiveBroadcastStream().transform(
+      StreamTransformer.fromHandlers(
+        handleData: (data, sink) {
+          List<BleDevice> devices = [];
+          final decoded = json.decode(data);
+          decoded.forEach((k, v) => devices.add(BleDevice(name: v, mac: k)));
+          sink.add(devices);
+        },
+        handleError: (error, stackTrace, sink) {
+          sink.addError('error in Movesense scan StreamTransformer: $error');
+        },
+        handleDone: (sink) {
+          sink.close();
+        },
+      )
+    );
+  }
+
+  static Future<int> connect(BleDevice device) async {
+    int _serial = await _mc.invokeMethod('connect', {'mac': device.mac});
     serial = _serial;
     return _serial;
   }
 
-  static Future<Null> mdsDisconnect(String mac) async {
-    await _mc.invokeMethod('disconnect', {'mac': mac});
+  static Future<Null> disconnect(BleDevice device) async {
+    await _mc.invokeMethod('disconnect', {'mac': device.mac});
   }
 
   static Future<String> get info async {
@@ -126,6 +146,47 @@ class Movesense {
 
 }
 
+class BleDevice {
+  String name;
+  String mac;
+
+  BleDevice({this.name, this.mac});
+
+  BleDevice.fromJson(Map<String, dynamic> json) {
+    name = json['Name'];
+    mac = json['Mac'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['Name'] = this.name;
+    data['Mac'] = this.mac;
+    return data;
+  }
+}
+
+class BleDeviceList {
+  List<BleDevice> elements;
+
+  BleDeviceList({this.elements});
+
+  BleDeviceList.fromJson(Map<String, dynamic> json) {
+    if (json['elements'] != null) {
+      elements = new List<BleDevice>();
+      json['elements'].forEach((v) {
+        elements.add(new BleDevice.fromJson(v));
+      });
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    if (this.elements != null) {
+      data['elements'] = this.elements.map((v) => v.toJson()).toList();
+    }
+    return data;
+  }
+}
 
 class LogbookEntry {
   int id;
