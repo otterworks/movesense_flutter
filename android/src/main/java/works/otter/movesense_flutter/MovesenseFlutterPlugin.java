@@ -155,7 +155,7 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, MethodCallHandler 
         ); // mds.delete
         break;
       } default: {
-        Log.wtf(TAG, String.format("Yo! %s is not a valid MDS Whiteboard action."));
+        Log.wtf(TAG, String.format("Yo! %s is not a valid MDS Whiteboard action.", call.method));
         result.notImplemented();
       }
     } // switch
