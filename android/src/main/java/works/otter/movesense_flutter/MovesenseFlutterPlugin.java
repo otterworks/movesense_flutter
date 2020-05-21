@@ -97,7 +97,12 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, MethodCallHandler 
         @Override
         public void onCancel(Object o) {
           Log.d(TAG, "cancelling stream listener");
-          sub.dispose();
+          if (sub == null) {
+            Log.d(TAG, "stream listener subscription already cancelled");
+          } else {
+            sub.dispose();
+            sub = null;
+          }
         }
       }
     );
@@ -110,6 +115,11 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, MethodCallHandler 
     switch (call.method) {
       case "connect": {
         final String mac = call.argument("mac");
+        if (sub != null) {
+          sub.dispose();
+          sub = null;
+          Log.d(TAG, "stopped BLE scan before connecting");
+        }
         mds.connect(mac,
           new MdsConnectionListener() {
             @Override
