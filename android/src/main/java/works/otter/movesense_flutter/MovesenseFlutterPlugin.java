@@ -9,6 +9,7 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
+import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
 
 import android.content.Context;
@@ -18,15 +19,28 @@ import com.movesense.mds.Mds;
 import com.movesense.mds.MdsConnectionListener;
 import com.movesense.mds.MdsException;
 import com.movesense.mds.MdsResponseListener;
-// without these below, mds.connect fails
+
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+import org.json.simple.JSONObject;
+import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
-import com.polidea.rxandroidble2.RxBleDevice; 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import com.polidea.rxandroidble2.RxBleClient;
+import com.polidea.rxandroidble2.RxBleDevice;
+import com.polidea.rxandroidble2.scan.ScanFilter;
+import com.polidea.rxandroidble2.scan.ScanResult;
+import com.polidea.rxandroidble2.scan.ScanSettings;
 
 public class MovesenseFlutterPlugin implements FlutterPlugin, MethodCallHandler {
   private static final String TAG = "MovesenseFlutterPlugin";
   private Context context = null;
   private MethodChannel methodChannel;
+  private EventChannel eventChannel;
   private static Mds mds;
+  private static RxBleClient ble;
+  private static Disposable sub;
 
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -40,9 +54,53 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, MethodCallHandler 
 
   private void onAttachedToEngine(Context context, BinaryMessenger messenger) {
     this.context = context;
-    methodChannel = new MethodChannel(messenger, "otter.works/movesense_whiteboard");
-    methodChannel.setMethodCallHandler(this);
     mds = Mds.builder().build(this.context);
+    ble = RxBleClient.create(this.context);
+    methodChannel = new MethodChannel(messenger, "otter.works/movesense/whiteboard");
+    methodChannel.setMethodCallHandler(this);
+    eventChannel = new EventChannel(messenger, "otter.works/movesense/scan");
+    eventChannel.setStreamHandler(
+      new EventChannel.StreamHandler() {
+        @Override
+        public void onListen(Object o, final EventChannel.EventSink event) {
+          Log.d(TAG, "adding stream listener");
+          Hashtable<String, String> mac_name = new Hashtable<String, String>();
+          sub = ble.scanBleDevices(
+          new ScanSettings.Builder()
+            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+            .build() //,
+        )
+          .subscribe(
+            scanResult -> {
+              if (scanResult.getBleDevice() != null) {
+                RxBleDevice device = scanResult.getBleDevice();
+                if (device.getName() != null) { // && device.getName().startsWith("Movesense")) {
+                  if (mac_name.get(device.getMacAddress()) == null) {
+                    Log.d(TAG, "found " + device.getName() + " with MAC " + device.getMacAddress());
+                    mac_name.put(device.getMacAddress(), device.getName());
+                    JSONObject json = new JSONObject();
+                    json.putAll(mac_name);
+                    event.success(json.toString());
+                  }
+                }
+              }
+            },
+            throwable -> {
+              Log.e(TAG,"scan error: " + throwable);
+              event.error("STREAM", "Error processing scan subscription", throwable.getMessage());
+            },
+            () -> Log.d(TAG, "closing the scan subscription")
+          );
+
+        }
+
+        @Override
+        public void onCancel(Object o) {
+          Log.d(TAG, "cancelling stream listener");
+          sub.dispose();
+        }
+      }
+    );
   }
 
   @Override
@@ -164,3 +222,4 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, MethodCallHandler 
   @Override
   public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {}
 }
+
