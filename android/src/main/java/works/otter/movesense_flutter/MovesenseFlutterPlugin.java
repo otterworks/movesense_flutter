@@ -163,7 +163,8 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, MethodCallHandler 
             @Override
             public void onError(MdsException e) {
               Log.e(TAG, "GET returned error:" + e);
-              result.error("MDS Exception", null, e);
+              Log.wtf(TAG, String.format("MDS Status Code: %d", e.getStatusCode()));
+              result.error("MDS Exception", null, e.getMessage());
             }
           } // MdsResponseListener
         ); // mds.get
@@ -182,7 +183,7 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, MethodCallHandler 
             @Override
             public void onError(MdsException e) {
               Log.e(TAG, "PUT returned error:" + e);
-              result.error("MDS Exception", null, e);
+              result.error("MDS Exception", null, e.getMessage());
             }
           } // MdsResponseListener
         ); // mds.put
@@ -199,8 +200,7 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, MethodCallHandler 
             @Override
             public void onError(MdsException e) {
               Log.e(TAG, "POST returned error:" + e);
-              // TODO: allow CONTINUE somehow...
-              result.error("MDS Exception", null, e);
+              result.error("MDS Exception", null, e.getMessage());
             }
           } // MdsResponseListener
         ); // mds.post
@@ -217,7 +217,7 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, MethodCallHandler 
             @Override
             public void onError(MdsException e) {
               Log.e(TAG, "DELETE returned error:" + e);
-              result.error("MDS Exception", null, e);
+              result.error("MDS Exception", null, e.getMessage());
             }
           } // MdsResponseListener
         ); // mds.delete
@@ -232,4 +232,3 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, MethodCallHandler 
   @Override
   public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {}
 }
-
