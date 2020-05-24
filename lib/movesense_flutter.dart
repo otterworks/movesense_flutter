@@ -68,7 +68,7 @@ class Movesense {
   static Future<Null> setTime(int utime) async {
     final String response = await _mc.invokeMethod('put', {
       'path':'suunto://$serial/Time',
-      'contract': '{"value": ${utime}}', // the key `value` does not appear to be officially documented
+      'contract': '{"value": $utime}', // the key `value` does not appear to be officially documented
     });
     print(response); // apparently mdsLib already strips it down to content...
   }
@@ -76,7 +76,7 @@ class Movesense {
   static Future<Null> setVisualIndicator(int mode) async {
     final String response = await _mc.invokeMethod('put', {
       'path':'suunto://$serial/Ui/Ind/Visual',
-      'contract': '{"newState": ${mode}}', // the key `newState` does not appear to be officially documented
+      'contract': '{"newState": $mode}', // the key `newState` does not appear to be officially documented
     });
     print(response); // apparently mdsLib already strips it down to content...
   }
@@ -139,7 +139,7 @@ class Movesense {
   }
 
   static Future<String> getLogbookEntry(int index) async { // use the MDS proxy to convert SBEM to JSON
-    final String response = await _mc.invokeMethod('get', {'path': 'suunto://MDS/Logbook/$serial/ById/${index}/Data'});
+    final String response = await _mc.invokeMethod('get', {'path': 'suunto://MDS/Logbook/$serial/ById/$index/Data'});
     print(response);
     return response;
   }
