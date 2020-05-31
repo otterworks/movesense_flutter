@@ -116,13 +116,11 @@ class Movesense {
   }
 
   static Future<List<LogbookEntry>> get logbookEntries async {
-    final String response = await _mc.invokeMethod('get', {'path': 'suunto://$serial/Mem/Logbook/Entries'});
-    print(response);
+    final String response = await _mc.invokeMethod('get', {'path': 'suunto://MDS/Logbook/$serial/Entries'});
     Map<String, dynamic> decoded = json.decode(response);
-    LogbookEntries entries = LogbookEntries.fromJson(decoded["Content"]);
+    LogbookEntries entries = LogbookEntries.fromJson(decoded);
     assert(entries != null);
     print("$entries.toJson()");
-    print("returning ${entries.elements} of type ${entries.elements.runtimeType}");
     return entries.elements;
   }
 
