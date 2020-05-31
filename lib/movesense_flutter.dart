@@ -120,7 +120,7 @@ class Movesense {
     Map<String, dynamic> decoded = json.decode(response);
     LogbookEntries entries = LogbookEntries.fromJson(decoded);
     assert(entries != null);
-    print("$entries.toJson()");
+    print("${entries.toJson()}");
     return entries.elements;
   }
 
