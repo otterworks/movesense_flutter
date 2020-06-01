@@ -10,13 +10,11 @@ void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData.light(),
-      darkTheme: ThemeData.dark(),
-      home: Find()
-    );
-  }
+  Widget build(BuildContext context) => MaterialApp(
+    theme: ThemeData.light(),
+    darkTheme: ThemeData.dark(),
+    home: Find()
+  );
 }
 
 class Find extends StatelessWidget {
@@ -45,7 +43,7 @@ class Find extends StatelessWidget {
               child: ListTile(
                 title: Text(devices[index].name),
                 subtitle: Text("MAC: ${devices[index].mac}"),
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => Connect(devices[index]))),
+                onTap: () => Movesense.connect(devices[index]).whenComplete(() => Navigator.push(context, MaterialPageRoute(builder: (context) => Connect()))),
               )
             ),
           );
@@ -56,61 +54,34 @@ class Find extends StatelessWidget {
 }
 
 class Connect extends StatelessWidget {
-  Connect(this.device, {Key key}) : super(key: key);
-
-  final BleDevice device;
-
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text("${device.name}"),),
-    body: StreamBuilder(
-      stream: Movesense.connection(device),
-      builder: (context, snapshot) {
-        if(snapshot.hasError) {
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text('Error: ${snapshot.error}'),
-          );
-        } else if(!snapshot.hasData) {
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: CircularProgressIndicator(),
-          );
-        } else if((snapshot.data == 'connecting') || (snapshot.data == 'disconnected')) {
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(snapshot.data),
-          );
-        } else if(snapshot.data.toString().startsWith('connected to MAC: ${device.mac} serial #: ')) { //, serial # ${device.name.split(' ').last}') {
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: displayMovesenseInfo(),
-          );
-        } else {
-          return Text("This really shouldn't happen:\n${snapshot.data}");
+    appBar: AppBar(
+      title: const Text('Movesense Info:'),
+      leading: BackButton(
+        onPressed: () => Movesense.disconnect().whenComplete(() => Navigator.pop(context)),
+      ),
+    ),
+    body: Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: FutureBuilder(
+        future: Movesense.info,
+        builder: (BuildContext c, AsyncSnapshot<String> s) {
+          switch (s.connectionState) {
+            case ConnectionState.done:
+              var jd = json.decode(s.data);
+              return Text(prettyJson(jd['Content'], indent: 2));
+              break;
+            case ConnectionState.none:
+            case ConnectionState.active:
+            case ConnectionState.waiting:
+              return Center(child: new CircularProgressIndicator());
+              break;
+            default:
+              return Center(child: Icon(Icons.warning));
+          }
         }
-      },
+      ),
     ),
   );
-
-  Widget displayMovesenseInfo() {
-    return FutureBuilder(
-      future: Movesense.info,
-      builder: (BuildContext c, AsyncSnapshot<String> s) {
-        switch (s.connectionState) {
-          case ConnectionState.done:
-            var jd = json.decode(s.data);
-            return Text(prettyJson(jd['Content'], indent: 2));
-            break;
-          case ConnectionState.none:
-          case ConnectionState.active:
-          case ConnectionState.waiting:
-            return Center(child: CircularProgressIndicator());
-            break;
-          default:
-            return Center(child: Icon(Icons.warning));
-        }
-      }
-    );
-  }
 }

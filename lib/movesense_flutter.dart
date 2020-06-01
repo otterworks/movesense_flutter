@@ -8,6 +8,8 @@ class Movesense {
   // TODO: investigate JSONMessageCodec class to potentially simplify encoding/decoding
   static const EventChannel _scan = const EventChannel('otter.works/movesense/scan');
   static const EventChannel _connection = const EventChannel('otter.works/movesense/connection');
+  static Stream<String> _connectionStream;
+  static StreamSubscription _connectionSubscription;
   static int serial;
 
   static Stream get scan {
@@ -29,7 +31,7 @@ class Movesense {
     );
   }
 
-  static Stream connection(BleDevice device) {
+  static Stream<String> connection(BleDevice device) {
     return _connection.receiveBroadcastStream(device.mac).transform(
       StreamTransformer.fromHandlers(
         handleData: (data, sink) {
@@ -43,7 +45,6 @@ class Movesense {
           } else {
             sink.addError('Movesense connect StreamTransformer does not recognize data: $data');
           }
-//          sink.add(serial.toString());
           sink.add(msg);
         },
         handleError: (error, stackTrace, sink) {
@@ -54,7 +55,18 @@ class Movesense {
         }
       )
     );
-  }  
+  }
+
+  static Future<String> connect(BleDevice device) async {
+    _connectionStream = connection(device);
+    _connectionSubscription = _connectionStream.listen(null); // open one subscription and leave it open
+    return _connectionStream.firstWhere((element) => element.endsWith('$serial')); // open a second subscription and return when it matches the serial number
+  }
+
+  static Future<Null> disconnect() async {
+    _connectionSubscription.cancel();
+    _connectionSubscription = null;
+  }
 
   static Future<String> get info async {
     final String response = await _wb.invokeMethod('get', {'path':'suunto://$serial/Info'});
