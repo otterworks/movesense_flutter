@@ -67,18 +67,13 @@ class Connect extends StatelessWidget {
       child: FutureBuilder(
         future: Movesense.info,
         builder: (BuildContext c, AsyncSnapshot<String> s) {
-          switch (s.connectionState) {
-            case ConnectionState.done:
-              var jd = json.decode(s.data);
-              return Text(prettyJson(jd['Content'], indent: 2));
-              break;
-            case ConnectionState.none:
-            case ConnectionState.active:
-            case ConnectionState.waiting:
-              return Center(child: new CircularProgressIndicator());
-              break;
-            default:
-              return Center(child: Icon(Icons.warning));
+          if (s.hasData) {
+            var jd = json.decode(s.data);
+            return Text(prettyJson(jd['Content'], indent: 2));
+          } else if (s.hasError) {
+            return Text('ERROR:\n${s.error}');
+          } else {
+            return Center(child: new CircularProgressIndicator());
           }
         }
       ),

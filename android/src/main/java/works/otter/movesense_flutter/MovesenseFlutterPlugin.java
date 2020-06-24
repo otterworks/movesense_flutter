@@ -151,8 +151,9 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, ActivityAware, Met
     }
     if (pathSerial == "null" ) {
       Log.wtf(TAG, "received method call with null serial number");
-      result.error(TAG, null, "will not attempt transaction with null serial number");
+      result.error("404", TAG, "will not attempt transaction with null serial number");
     } else {
+      Log.d(TAG, String.format("operation: %s, path: %s", call.method, path));
 // TODO: seems like get/put/post/delete below are boilerplate and I should be able to implement them with some sort of function factory, but let's stick with the simple boilerplate for now
       switch (call.method) {
       case "get": {
@@ -167,8 +168,7 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, ActivityAware, Met
             @Override
             public void onError(MdsException e) {
               Log.e(TAG, "GET returned error:" + e);
-              Log.wtf(TAG, String.format("MDS Status Code: %d", e.getStatusCode()));
-              result.error("MDS Exception", null, e.getMessage());
+              result.error(String.format("%d", e.getStatusCode()), "MdsException", e.getMessage() + String.format(", path: %s", path));
             }
           } // MdsResponseListener
         ); // mds.get
@@ -187,7 +187,7 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, ActivityAware, Met
             @Override
             public void onError(MdsException e) {
               Log.e(TAG, "PUT returned error:" + e);
-              result.error("MDS Exception", null, e.getMessage());
+              result.error(String.format("%d", e.getStatusCode()), "MdsException", e.getMessage() + String.format(", path: %s, contract: %s", path, contract));
             }
           } // MdsResponseListener
         ); // mds.put
@@ -204,7 +204,7 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, ActivityAware, Met
             @Override
             public void onError(MdsException e) {
               Log.e(TAG, "POST returned error:" + e);
-              result.error("MDS Exception", null, e.getMessage());
+              result.error(String.format("%d", e.getStatusCode()), "MdsException", e.getMessage() + String.format(", path: %s", path));
             }
           } // MdsResponseListener
         ); // mds.post
@@ -221,7 +221,7 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, ActivityAware, Met
             @Override
             public void onError(MdsException e) {
               Log.e(TAG, "DELETE returned error:" + e);
-              result.error("MDS Exception", null, e.getMessage());
+              result.error(String.format("%d", e.getStatusCode()), "MdsException", e.getMessage() + String.format(", path: %s", path));
             }
           } // MdsResponseListener
         ); // mds.delete

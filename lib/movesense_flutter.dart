@@ -69,13 +69,27 @@ class Movesense {
   }
 
   static Future<String> get info async {
-    final String response = await _wb.invokeMethod('get', {'path':'suunto://$serial/Info'});
-    return response;
+    final String wbOp = 'get';
+    final String wbPath = 'suunto://$serial/Info';
+    try {
+      final String response = await _wb.invokeMethod(wbOp, {'path': wbPath});
+      return response;
+    } on PlatformException catch (e) {
+      print('caught PlatformException from operation: $wbOp on path: $wbPath');
+      throw(e);
+    }
   }
 
   static Future<String> get appInfo async {
-    final String response = await _wb.invokeMethod('get', {'path':'suunto://$serial/Info/App'});
-    return response;
+    final String wbOp = 'get';
+    final String wbPath = 'suunto://$serial/Info/App';
+    try {
+      final String response = await _wb.invokeMethod(wbOp, {'path': wbPath});
+      return response;
+    } on PlatformException catch (e) {
+      print('caught PlatformException from operation: $wbOp on path: $wbPath');
+      throw(e);
+    }
   }
 
   static Future<String> get batteryLevel async {
@@ -155,9 +169,15 @@ class Movesense {
   }
 
   static Future<int> get newLogbookEntry async {
-    final String response = await _wb.invokeMethod('post', {'path': 'suunto://$serial/Mem/Logbook/Entries'});
-    print(response);
-    return json.decode(response)["Content"];
+    final String wbOp = 'post';
+    final String wbPath = 'suunto://$serial/Mem/Logbook/Entries';
+    try {
+      final String response = await _wb.invokeMethod(wbOp, {'path': wbPath});
+      return json.decode(response)["Content"];
+    } on PlatformException catch (e) {
+      print('caught PlatformException from operation: $wbOp on path: $wbPath');
+      throw(e);
+    }
   }
 
   static Future<String> deleteAllLogbookEntries() async { // there's no example to selectively delete a single entry
