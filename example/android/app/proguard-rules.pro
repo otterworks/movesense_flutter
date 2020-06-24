@@ -8,7 +8,9 @@
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
 # Add any project specific keep options here:
+-keep class works.otter.movesense_flutter.** { *; } # keep everything in the movesense_flutter plugin
 -keep class com.movesense.mds.** { *; } # keep everything in MDS
+-keep class com.polidea.rxandroidble2.** { *; } # keep everything in the embedded BLE stack
 
 # If your project uses WebView with JS, uncomment the following
 # and specify the fully qualified class name to the JavaScript interface
