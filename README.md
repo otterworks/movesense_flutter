@@ -2,6 +2,10 @@
 
 A flutter plugin to communicate with the Whiteboard on a Suunto Movesense.
 
+This plugin wraps the [movesense-mobile-lib][1] from Suunto, but is *not*
+developed or supported by Suunto. Please direct plugin/flutter bug reports
+and support inquiries to [the issues page for the plugin git repo][issues].
+
 ## supported platforms
 
 Right now the platform-specific side of the plugin is only implemented for
@@ -12,11 +16,11 @@ In the meantime, please feel free to fork, hack, and submit PRs.
 
 ## dependencies
 
-This plugin wraps the [movesense-mobile-lib][1] from Suunto. It uses
+This plugin wraps the [movesense-mobile-lib][lib] from Suunto. It uses
 `mdslib-...-release.aar` for Android, and will use `libmds.a` for iOS.
 
-These pre-built release libraries are available in the Suunto repository on
-[bitbucket][1], and subject to the license in that repository.
+The compiled release libraries are available in the Suunto repository on
+[bitbucket][lib], and subject to the license in that repository.
 
 This also means you need to include the dependencies of the mobile lib. The
 plugin should mostly take care of that, but for release builds and for apps
@@ -47,4 +51,5 @@ popd
 *note:* Downloading `build.gradle` from my bitbucket fork may be skipped in
 the future if Suunto accepts a pull request to add it upstream.
 
-[1]: https://bitbucket.org/suunto/movesense-mobile-lib
+[issues]: https://gitlab.com/bluesquall/movesense_flutter/-/issues
+[lib]: https://bitbucket.org/suunto/movesense-mobile-lib
