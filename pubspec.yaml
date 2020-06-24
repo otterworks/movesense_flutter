@@ -1,7 +1,6 @@
 name: movesense_flutter
 description: A new flutter plugin project.
 version: 0.0.1
-author: M Jordan Stanway
 homepage: https://gitlab.com/bluesquall/movesense_flutter
 
 environment:
