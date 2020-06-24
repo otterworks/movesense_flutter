@@ -56,6 +56,7 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, ActivityAware, Met
   @Override
   public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
     this.activity = binding.getActivity();
+    scanChannel.setStreamHandler(new ScanHandler(this.activity, this.context));
   }
 
   @Override
@@ -71,6 +72,7 @@ public class MovesenseFlutterPlugin implements FlutterPlugin, ActivityAware, Met
   @Override
   public void onDetachedFromActivity() {
     this.activity = null;
+    scanChannel.setStreamHandler(new ScanHandler(this.activity, this.context));
   }
   
   @Override
