@@ -1,6 +1,8 @@
 # movesense_flutter
 
-A flutter plugin to communicate with the Whiteboard on a Suunto Movesense.
+A flutter plugin to communicate with the Whiteboard on a Suunto Movesense
+sensor. For more information on the Movesense platform, please refer to
+[movesense.com](https://www.movesense.com).
 
 This plugin wraps the [movesense-mobile-lib][lib] from Suunto, but is *not*
 developed or supported by Suunto. Please direct plugin/flutter bug reports
