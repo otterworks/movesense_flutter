@@ -249,6 +249,8 @@ class ScanHandler implements StreamHandler {
   private static Disposable sub = null;
   private static RxBleClient ble;
   private static final int REQUEST_PERMISSION_COARSE_LOCATION = 1;
+  private static final int REQUEST_PERMISSION_FINE_LOCATION = 2;
+  private static final int REQUEST_PERMISSION_BACKGROUND_LOCATION = 3;
 
   public ScanHandler(Activity a, Context c) {
     this.activity = a;
@@ -272,11 +274,51 @@ class ScanHandler implements StreamHandler {
     }
   }
 
+  public boolean hasFineLocationPermission() {
+    Log.d(TAG, "checking for fine location permission");
+    if (PackageManager.PERMISSION_DENIED == ContextCompat.checkSelfPermission(context, permission.ACCESS_FINE_LOCATION)) {
+      if (activity != null ) {
+        Log.d(TAG, "requesting fine location permission");
+        ActivityCompat.requestPermissions(activity, new String[]{permission.ACCESS_FINE_LOCATION}, REQUEST_PERMISSION_FINE_LOCATION);
+      } else {
+        Log.d(TAG, "could not get reference to activity");
+      }
+      return false;
+    } else {
+      Log.d(TAG, "already have fine location permission");
+      return true;
+    }
+  }
+
+  public boolean hasBackgroundLocationPermission() {
+    Log.d(TAG, "checking for background location permission");
+    if (PackageManager.PERMISSION_DENIED == ContextCompat.checkSelfPermission(context, permission.ACCESS_BACKGROUND_LOCATION)) {
+      if (activity != null ) {
+        Log.d(TAG, "requesting background location permission");
+        ActivityCompat.requestPermissions(activity, new String[]{permission.ACCESS_BACKGROUND_LOCATION}, REQUEST_PERMISSION_BACKGROUND_LOCATION);
+      } else {
+        Log.d(TAG, "could not get reference to activity");
+      }
+      return false;
+    } else {
+      Log.d(TAG, "already have fine location permission");
+      return true;
+    }
+  }
+
+  public boolean hasScanPermission() {
+    boolean p = true;
+    p &= hasBackgroundLocationPermission();
+    p &= hasFineLocationPermission();
+    p &= hasCoarseLocationPermission();
+    return p;
+  }
+
   @Override
   public void onListen(Object o, final EventChannel.EventSink event) {
     Log.d(TAG, "adding stream listener");
     Hashtable<String, String> mac_name = new Hashtable<String, String>();
-    if( hasCoarseLocationPermission() ) {
+    if( hasScanPermission() ) {
       sub = ble.scanBleDevices(
         new ScanSettings.Builder()
           .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
