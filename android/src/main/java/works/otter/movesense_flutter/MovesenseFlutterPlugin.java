@@ -285,6 +285,7 @@ class ScanHandler implements StreamHandler {
       .subscribe(
         scanResult -> {
           if (scanResult.getBleDevice() != null) {
+            Log.d(TAG, "found non-null BLE device " + scanResult.getBleDevice().getName() + " with MAC " + scanResult.getBleDevice().getMacAddress());
             RxBleDevice device = scanResult.getBleDevice();
             if (device.getName() != null) { // && device.getName().startsWith("Movesense")) {
               if (mac_name.get(device.getMacAddress()) == null) {
