@@ -308,9 +308,9 @@ class ScanHandler implements StreamHandler {
 
   public boolean hasScanPermission() {
     boolean p = true;
-    p &= hasBackgroundLocationPermission();
+    // p &= hasBackgroundLocationPermission();
     p &= hasFineLocationPermission();
-    p &= hasCoarseLocationPermission();
+    // p &= hasCoarseLocationPermission();
     return p;
   }
 
