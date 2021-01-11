@@ -1,6 +1,6 @@
 name: movesense_flutter
 description: A flutter plugin project to interface with the Suunto Movesense device
-version: 0.0.4
+version: 0.0.5
 homepage: https://gitlab.com/bluesquall/movesense_flutter
 
 environment:
