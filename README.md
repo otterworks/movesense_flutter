@@ -36,22 +36,5 @@ for details. It should boil down to:
 -keep class com.polidea.rxandroidble2.** { *; } # keep everything in the embedded BLE stack
 ```
 
-## extra steps
-
-Until I figure out how to package the `aar` into the published flutter
-plugin, you need to add it to mavenLocal before you can build an Android
-project using this plugin. To do this, add `build.gradle` to your clone of
-the movesense-mobile-lib, then publish to your mavenLocal repository, e.g.:
-
-```shell
-pushd /path/to/movesense-mobile-lib/android/Movesense
-curl -SLO https://bitbucket.org/bluesquall/movesense-mobile-lib/raw/2613490/android/Movesense/build.gradle
-gradle publishToMavenLocal
-popd
-```
-
-*note:* Downloading `build.gradle` from my bitbucket fork may be skipped in
-the future if Suunto accepts a pull request to add it upstream.
-
 [issues]: https://gitlab.com/bluesquall/movesense_flutter/-/issues
 [lib]: https://bitbucket.org/suunto/movesense-mobile-lib

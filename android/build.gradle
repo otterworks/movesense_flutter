@@ -16,7 +16,13 @@ rootProject.allprojects {
     repositories {
         google()
         jcenter()
-        mavenLocal()
+        flatDir {
+            if (findProject(':movesense_flutter') != null) {
+                dirs project(":movesense_flutter").file('libs')
+            } else {
+                dirs file('libs')
+            }
+        }
     }
 }
 
@@ -43,9 +49,10 @@ configurations {
 }
 
 dependencies {
+    implementation (name: 'mdslib-1.44.0', ext: 'aar')
+
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'com.polidea.rxandroidble2:rxandroidble:1.10.2'
-    implementation 'com.suunto.mds:mdslib:1.44.0(1)-release'
 }
